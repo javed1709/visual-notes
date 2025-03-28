@@ -16,7 +16,7 @@ function SharedNote() {
   const fetchSharedNote = async () => {
     try {
       // Fetch shared note directly from MongoDB
-      const response = await fetch(`http://localhost:5000/api/notes/shared/${id}`);
+      const response = await fetch(`https://visual-notes.up.railway.app/api/notes/shared/${id}`);
       
       if (!response.ok) {
         throw new Error('Note not found or not publicly shared');

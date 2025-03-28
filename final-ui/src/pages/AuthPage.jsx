@@ -27,7 +27,7 @@ function AuthPage() {
         ? { email, password } 
         : { name, email, password };
 
-      const response = await fetch(`http://localhost:5000/api/users/${endpoint}`, {
+      const response = await fetch(`https://visual-notes.up.railway.app/api/users/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

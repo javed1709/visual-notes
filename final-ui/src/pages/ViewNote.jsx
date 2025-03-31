@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Loader, AlertCircle, Share2, Edit } from 'lucide-react';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import ShareModal from '../components/ShareModal';
+import mermaid from 'mermaid';
 
 function ViewNote() {
   const { id } = useParams();
@@ -11,9 +12,32 @@ function ViewNote() {
   const [error, setError] = useState('');
   const [shareModalOpen, setShareModalOpen] = useState(false);
 
+  // Initialize Mermaid.js when component mounts
+  useEffect(() => {
+    mermaid.initialize({ 
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+  }, []);
+
   useEffect(() => {
     fetchNote();
   }, [id]);
+
+  // Process Mermaid diagrams when note content changes
+  useEffect(() => {
+    if (note?.content) {
+      // Small delay to ensure the DOM is ready
+      setTimeout(() => {
+        try {
+          mermaid.contentLoaded();
+        } catch (err) {
+          console.error('Mermaid rendering error:', err);
+        }
+      }, 100);
+    }
+  }, [note]);
 
   const fetchNote = async () => {
     try {

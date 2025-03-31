@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader, AlertCircle, Plus, Eye, Share2 } from 'lucide-react';
+import { Loader, AlertCircle, Plus, Eye, Share2, Trash2 } from 'lucide-react';
 import ShareModal from '../components/ShareModal';
 
 function NotesCollection() {
@@ -13,6 +13,8 @@ function NotesCollection() {
   
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState(null);
+  const [noteToDelete, setNoteToDelete] = useState(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   // Fetch user notes when component mounts
   useEffect(() => {
@@ -24,7 +26,7 @@ function NotesCollection() {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        navigate('/login');
+        navigate('/auth'); // Fixed: changed '/login' to '/auth' to match your auth route
         return;
       }
 
@@ -49,6 +51,43 @@ function NotesCollection() {
     }
   };
 
+  // Show delete confirmation modal
+  const confirmDelete = (note) => {
+    setNoteToDelete(note);
+    setDeleteConfirmOpen(true);
+  };
+
+  // Delete a note
+  const handleDeleteNote = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+
+      const response = await fetch(`https://visual-notes.up.railway.app/api/notes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete note');
+      }
+      
+      // Remove deleted note from state
+      setNotes(notes.filter(note => note._id !== id));
+      setNoteToDelete(null);
+      setDeleteConfirmOpen(false);
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      setError(`Failed to delete note: ${error.message}`);
+    }
+  };
+
   // Generate notes using AI
   const handleGenerate = async () => {
     if (!query.trim()) {
@@ -62,7 +101,7 @@ function NotesCollection() {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        navigate('/login');
+        navigate('/auth');
         return;
       }
   
@@ -229,6 +268,13 @@ function NotesCollection() {
                       Share
                     </button>
                   )}
+                  <button 
+                    onClick={() => confirmDelete(note)}
+                    className="btn-secondary btn-sm flex items-center gap-1 text-red-500"
+                  >
+                    <Trash2 size={16} />
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}
@@ -243,6 +289,7 @@ function NotesCollection() {
         )}
       </div>
       
+      {/* Share Modal */}
       {selectedNote && (
         <ShareModal
           isOpen={shareModalOpen}
@@ -250,6 +297,34 @@ function NotesCollection() {
           noteId={selectedNote._id}
           noteTitle={selectedNote.title}
         />
+      )}
+      
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmOpen && noteToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white dark:bg-surface-dark rounded-lg shadow-lg w-full max-w-md p-6">
+            <h3 className="text-xl font-semibold text-text-primary dark:text-text-light mb-4">
+              Delete Note
+            </h3>
+            <p className="text-text-secondary dark:text-text-light/80 mb-6">
+              Are you sure you want to delete "{noteToDelete.title || `Note ${noteToDelete._id.substring(0, 8)}`}"? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setDeleteConfirmOpen(false)} 
+                className="btn-secondary"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleDeleteNote(noteToDelete._id)} 
+                className="btn-primary bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

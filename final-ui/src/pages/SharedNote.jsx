@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Loader, AlertCircle, User } from 'lucide-react';
 import MarkdownRenderer from '../components/MarkdownRenderer';
+import mermaid from 'mermaid';
 
 function SharedNote() {
   const { id } = useParams();
@@ -9,9 +10,32 @@ function SharedNote() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Initialize Mermaid.js when component mounts
+  useEffect(() => {
+    mermaid.initialize({ 
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+  }, []);
+
   useEffect(() => {
     fetchSharedNote();
   }, [id]);
+  
+  // Process Mermaid diagrams when note content changes
+  useEffect(() => {
+    if (note?.content) {
+      // Small delay to ensure the DOM is ready
+      setTimeout(() => {
+        try {
+          mermaid.contentLoaded();
+        } catch (err) {
+          console.error('Mermaid rendering error:', err);
+        }
+      }, 100);
+    }
+  }, [note]);
 
   const fetchSharedNote = async () => {
     try {
@@ -84,7 +108,6 @@ function SharedNote() {
             </div>
           </div>
           
-          {/* Use MarkdownRenderer instead of ReactMarkdown directly */}
           <MarkdownRenderer content={note?.content || ''} />
           
           <div className="flex gap-4 mt-8">

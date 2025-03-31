@@ -6,7 +6,8 @@ import {
   getSharedNote,
   saveManualNote, 
   getNoteById,
-  updateNote
+  updateNote,
+  deleteNote
 } from '../controllers/notesController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -20,5 +21,6 @@ router.put('/:id', protect, updateNote);
 router.get('/', protect, getUserNotes);
 router.get('/shared/:id', getSharedNote);
 router.get('/:id', protect, getNoteById);
+router.delete('/:id', protect, deleteNote);
 
 export default router;

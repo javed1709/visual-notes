@@ -1,17 +1,36 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
+import Groq from 'groq-sdk';
+import dotenv from 'dotenv';
 import Note from "../models/Note.js";
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+// Initialize Groq client with API key
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY
+});
 
 async function run(query) {
-  // Use Gemini 2.0 Flash model to generate content
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-  const result = await model.generateContent(query);
-  const responseObj = await result.response;
-  const text = responseObj.text();
-  return text;
+  // Use DeepSeek model via Groq API to generate content
+  const chatCompletion = await groq.chat.completions.create({
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are a helpful assistant skilled in creating markdown content with accurate mermaid diagrams."
+      },
+      {
+        "role": "user",
+        "content": query
+      }
+    ],
+    "model": "deepseek-r1-distill-qwen-32b",
+    "temperature": 0.6,
+    "max_completion_tokens": 4096,
+    "top_p": 0.95,
+    "stream": false,
+    "stop": null
+  });
+
+  // Extract and return the text response
+  return chatCompletion.choices[0].message.content;
 }
 
 export async function generateAnswers(req, res) {
@@ -27,8 +46,8 @@ export async function generateAnswers(req, res) {
 - strict: if diagrams are asked, give me a mermaidjs script for it.
 - length: answers for each question should be around half a4 page when printed
 - response should be with only markdown syntaxes like #, ##, bullet points, number points etc.
-- format of response: question and answer. question is a ## heading (with question number) and answers (sideheadings with ### and bullets, numbers). separate with newlines.`;
-
+- format of response: question and answer. question is a ## heading (with question number) and answers (sideheadings with ### and bullets, numbers). separate with newlines.
+- make damn sure about the mermaid script you give 100% accuratre and correct`;
     let fullContent = "";
     // Process the query in batches (5 lines each)
     const lines = query.split("\n");
@@ -216,6 +235,24 @@ export async function getNoteById(req, res) {
     });
   } catch (error) {
     console.error('Error fetching note:', error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export async function deleteNote(req, res) {
+  try {
+    const { id } = req.params;
+    // Find note and ensure the logged-in user is the owner
+    const note = await Note.findOne({ _id: id, owner: req.user._id });
+    
+    if (!note) {
+      return res.status(404).json({ message: 'Note not found or not authorized' });
+    }
+    
+    await Note.deleteOne({ _id: id });
+    res.json({ message: 'Note deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting note:', error);
     res.status(500).json({ message: error.message });
   }
 }

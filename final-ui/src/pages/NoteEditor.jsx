@@ -44,7 +44,7 @@ function NoteEditor() {
   const fetchNote = async (noteId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`visual-notes.up.railway.app/api/notes/${noteId}`, {
+      const response = await fetch(`https://visual-notes.up.railway.app/api/notes/${noteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -92,7 +92,7 @@ function NoteEditor() {
       
       // If id exists, update the existing note
       if (id) {
-        response = await fetch(`visual-notes.up.railway.app/api/notes/${id}`, {
+        response = await fetch(`https://visual-notes.up.railway.app/api/notes/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ function NoteEditor() {
         });
       } else {
         // Create a new note
-        response = await fetch('visual-notes.up.railway.app/api/notes/manual-save', {
+        response = await fetch('https://visual-notes.up.railway.app/api/notes/manual-save', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -29,7 +29,7 @@ function FileUploader({ onTextExtracted }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('visual-notes.up.railway.app/api/files/parse', {
+      const response = await fetch('https://visual-notes.up.railway.app/api/files/parse', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -32,7 +32,7 @@ function Dashboard() {
       }
 
       // Fetch user's notes
-      const response = await fetch('visual-notes.up.railway.app/api/notes', {
+      const response = await fetch('https://visual-notes.up.railway.app/api/notes', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -96,7 +96,7 @@ function Dashboard() {
   const handleShareNote = async (note) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`visual-notes.up.railway.app/api/notes/${note._id}/share`, {
+      const response = await fetch(`https://visual-notes.up.railway.app/api/notes/${note._id}/share`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -43,7 +43,7 @@ function ViewNote() {
     try {
       const token = localStorage.getItem('token');
       // Fetch the note data including content
-      const response = await fetch(`https://visual-notes.up.railway.app/api/notes/${id}`, {
+      const response = await fetch(`visual-notes.up.railway.app/api/notes/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -72,7 +72,7 @@ function ViewNote() {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://visual-notes.up.railway.app/api/notes/${id}/share`, {
+      const response = await fetch(`visual-notes.up.railway.app/api/notes/${id}/share`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

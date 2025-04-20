@@ -1,37 +1,28 @@
-import Groq from 'groq-sdk';
+// import Groq from 'groq-sdk';
 import dotenv from 'dotenv';
+import { GoogleGenAI } from "@google/genai";
 import Note from "../models/Note.js";
 dotenv.config();
 
 // Initialize Groq client with API key
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY
-});
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENAI_API_KEY });
 
 async function run(query) {
-  // Use DeepSeek model via Groq API to generate content
-  const chatCompletion = await groq.chat.completions.create({
-    "messages": [
-      {
-        "role": "system",
-        "content": "You are a helpful assistant skilled in creating markdown content with accurate mermaid diagrams."
-      },
-      {
-        "role": "user",
-        "content": query
-      }
-    ],
-    "model": "deepseek-r1-distill-llama-70b",
-    "temperature": 0.6,
-    "max_completion_tokens": 4096,
-    "top_p": 0.95,
-    "stream": false,
-    "stop": null
-  });
+  try {
+    // Use Gemini AI model to generate content
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-pro-exp-03-25",
+      contents: query,
+    });
 
-  // Extract and return the text response
-  return chatCompletion.choices[0].message.content;
-}
+    // Extract and return the text response
+    return response.text;
+  } catch (error) {
+    console.error("Error using Gemini AI model:", error);
+    throw new Error("Failed to generate content using Gemini AI.");
+  }
+} 
+
 
 export async function generateAnswers(req, res) {
   try {

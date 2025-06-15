@@ -20,6 +20,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/files', fileRoutes);
 
+
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {

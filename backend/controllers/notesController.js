@@ -11,7 +11,7 @@ async function run(query) {
   try {
     // Use Gemini AI model to generate content
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro-preview-06-05",
+      model: "gemini-2.0-flash",
       contents: query,
     });
 
